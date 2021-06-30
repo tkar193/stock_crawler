@@ -1,0 +1,40 @@
+{
+    "reddit": {
+        "client_id": "Ux-vJMxZ3nAXKg",
+        "client_secret": "K2UOHR9tx-UuiS9GnsbZBYm5RpweTg",
+        "username": "flare193",
+        "password": "Bomber123",
+        "user_agent": "ticker_scraper"
+    },
+    "stocktwits": {
+        "consumer_key": "569624beb883d0f7",
+        "consumer_secret": "62bae64c9376ea6c6f1396ae13a1125e353b795d",
+        "request_token_url": "https://api.stocktwits.com/api/2/oauth/token",
+        "authorize_url": "https://api.stocktwits.com/api/2/oauth/authorize",
+        "code": "14cedf1c6236631ff655964972f5ec827c9b1429",
+        "user_id": 4486206,
+        "username": "tk193",
+        "access_token": "9f6883d35823dd5db1860e189b91c1bb4072dac5",
+        "scope": "read,watch_lists,direct_messages,publish_messages,publish_watch_lists,follow_users"
+    },
+    "discord":
+    {
+        "token": "ODU4OTIwOTg5MzcxMDA3MDA2.YNlKgQ.n36WdEvAbXSXxu29Hyd_BT6lvoc",
+        "general_channel_id": 858920579238723597
+    },
+    "twilio": 
+    {
+        "account_sid": "AC3016543ef895b3b232ccde6b991bf2f0",
+        "auth_token": "5949e8d35d762b8575f4df7aa2a200fb",
+        "source_phone_number": "+17792045232",
+        "target_phone_numbers": [
+            "+17326090804",
+            "+18574159383"
+        ]
+    },
+    "data_directory": {
+        "ticker_list": "data/nasdaq_screener_1623726528918.csv",
+        "ticker_ignore": "data/ticker_ignore.csv",
+        "stocktwits_trending": "data/stocktwits_trending/${datetime}/trending.csv"
+    }
+}
