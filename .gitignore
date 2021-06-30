@@ -1,0 +1,6 @@
+/__pycache__/*
+/bots/__pycache__/*
+/bots/__init__.py
+/common/__pycache__/*
+/common/*.pyc
+/common/__init__.py
