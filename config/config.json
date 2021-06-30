@@ -25,7 +25,7 @@
     "twilio": 
     {
         "account_sid": "AC3016543ef895b3b232ccde6b991bf2f0",
-        "auth_token": "5949e8d35d762b8575f4df7aa2a200fb",
+        "auth_token": "eyAiYWNjZXNzX3Rva2VuIjogImE0MGIwZTBkZGVhY2U4NTczZGI3YzEwYzk1NzllMTVhIiB9",
         "source_phone_number": "+17792045232",
         "target_phone_numbers": [
             "+17326090804",

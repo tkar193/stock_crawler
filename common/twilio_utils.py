@@ -1,3 +1,6 @@
+import base64
+import json
+
 from twilio.rest import Client
 
 import utils
@@ -10,6 +13,14 @@ twilio_client = None
 # source_phone_number = None
 
 
+def get_auth_token():
+    encoded_token = twilio_config["auth_token"]
+    decoded_token = base64.b64decode(encoded_token)
+    token_json = json.loads(decoded_token)
+    token = token_json["access_token"]
+    return token
+
+
 def initialize_twilio_client():
     global twilio_config
     global twilio_client
@@ -17,7 +28,7 @@ def initialize_twilio_client():
     twilio_config = utils.load_config(application = "twilio")
 
     account_sid = twilio_config["account_sid"]
-    auth_token = twilio_config["auth_token"]
+    auth_token = get_auth_token()
 
     twilio_client = Client(account_sid, auth_token)
 
@@ -49,8 +60,6 @@ if __name__ == '__main__':
 
     initialize_twilio_client()
 
-    message1 = "Wow what a handsome man"
-    message2 = "Hello my shilly shally dilly dally pawp!!!! ;)"
     send_sms(message1)
     send_sms(message2, target_phone_number = "+18574159383")
 

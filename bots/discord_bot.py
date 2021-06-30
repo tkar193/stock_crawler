@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append("..")
 
 from common import utils, constants
+from servers import keep_alive
 
 
 ###### IGNORE ###########
@@ -61,7 +62,8 @@ async def on_ready():
     get_trending_information.start()
     print("Are now logged in as " + str(bot.user))
 
-@tasks.loop(minutes = 15)
+# @tasks.loop(minutes = 15)
+@tasks.loop(seconds = 30)
 async def get_trending_information():
     global previous_trending_list
 
@@ -95,6 +97,7 @@ if __name__ == '__main__':
     decoded_token = base64.b64decode(encoded_token)
     token_json = json.loads(decoded_token)
     token = token_json["access_token"]
+    keep_alive.keep_alive()
     bot.run(token)
 
 
