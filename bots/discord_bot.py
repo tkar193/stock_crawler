@@ -1,5 +1,7 @@
 import sys
 import os
+import base64
+import json
 
 import discord
 from discord.ext import commands, tasks
@@ -89,7 +91,10 @@ async def get_trending_information():
 
 if __name__ == '__main__':
     discord_config = utils.load_config(application = "discord")
-    token = discord_config["token"]
+    encoded_token = discord_config["token"]
+    decoded_token = base64.b64decode(encoded_token)
+    token_json = json.loads(decoded_token)
+    token = token_json["access_token"]
     bot.run(token)
 
 
