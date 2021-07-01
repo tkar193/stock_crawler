@@ -1,5 +1,6 @@
 # General
 
+LOCAL_ABSOLUTE_PROJECT_DIRECTORY_PREFIX = "/Users/tkar/Dev_Personal/trading/stock_crawler"
 CONFIG_URL = "../config/config.json"
 
 
@@ -16,9 +17,14 @@ STOCKTWITS_ENDPOINT = "https://api.stocktwits.com/api/2/"
 
 # Yahoo Finance related constants
 
+LENGTH_GET_HISTORY_WINDOW = 100
+
 SHORT_SMA = 20
 LONG_SMA = 50
 VOLUME_MA = 20
+
+TICKERS_CLOSING_INDEX = 0
+TICKERS_VOLUME_INDEX = 6
 
 
 # Twilio related constants

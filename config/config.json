@@ -33,7 +33,7 @@
         ]
     },
     "data_directory": {
-        "ticker_list": "data/nasdaq_screener_1623726528918.csv",
+        "ticker_list": "data/entire_ticker_list.csv",
         "ticker_ignore": "data/ticker_ignore.csv",
         "stocktwits_trending": "data/stocktwits_trending/${datetime}/trending.csv"
     }

@@ -62,8 +62,8 @@ async def on_ready():
     get_trending_information.start()
     print("Are now logged in as " + str(bot.user))
 
-# @tasks.loop(minutes = 15)
-@tasks.loop(seconds = 30)
+@tasks.loop(minutes = 15)
+# @tasks.loop(seconds = 10)
 async def get_trending_information():
     global previous_trending_list
 
@@ -73,15 +73,27 @@ async def get_trending_information():
     trending_tickers = st_bot.get_trending_tickers()
 
     timestamp = utils.get_timestamp()
-    message = timestamp + "\n" + str(trending_tickers) + "\n"
-    
+    message = timestamp + "\n"
+    exit_trending = set()
+    new_trending = set()
+
     if previous_trending_list is not None:
         exit_trending = set(previous_trending_list) - set(trending_tickers)
         new_trending = set(trending_tickers) - set(previous_trending_list)
-        if exit_trending != set():
-            message += "Tickers exiting trending: " + str(exit_trending) + "\n"
-        if new_trending != set():
-            message += "Tickers entering trending: " + str(new_trending) + "\n"
+        # if exit_trending != set():
+        #     message += "Tickers exiting trending: " + str(exit_trending) + "\n"
+        # if new_trending != set():
+        #     message += "Tickers entering trending: " + str(new_trending) + "\n"
+    
+    for ticker in trending_tickers:
+        message += ticker
+        if ticker in new_trending:
+            message += " <<"
+
+        message += "\n"
+
+    for ticker in exit_trending:
+        message += ticker + " >>\n"
 
     print(message)
 
