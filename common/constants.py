@@ -17,7 +17,7 @@ STOCKTWITS_ENDPOINT = "https://api.stocktwits.com/api/2/"
 
 # Yahoo Finance related constants
 
-LENGTH_GET_HISTORY_WINDOW = 100
+LENGTH_GET_HISTORY_WINDOW = 1000
 
 SHORT_SMA = 20
 LONG_SMA = 50
