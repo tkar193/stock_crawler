@@ -5,14 +5,15 @@ import json
 
 import discord
 from discord.ext import commands, tasks
+from decouple import config
 
 import stocktwits_bot
-
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append("..")
-
 from common import utils, constants
 from servers import keep_alive
+from brokers import robinhood_client
+import yahoo_finance_data as yfd
 
 
 ###### IGNORE ###########
@@ -54,13 +55,16 @@ class DiscordBot(discord.Client):
 bot = commands.Bot(command_prefix = "!")
 discord_config = utils.load_config(application = "discord")
 st_bot = stocktwits_bot.StocktwitsBot()
+robinhood_client = robinhood_client.RobinhoodClient()
 previous_trending_list = None
 
 
 @bot.event
 async def on_ready():
-    get_trending_information.start()
     print("Are now logged in as " + str(bot.user))
+    # get_trending_information.start()
+    get_intraday_watchlist_info.start()
+    
 
 @tasks.loop(minutes = 15)
 # @tasks.loop(seconds = 10)
@@ -80,10 +84,7 @@ async def get_trending_information():
     if previous_trending_list is not None:
         exit_trending = set(previous_trending_list) - set(trending_tickers)
         new_trending = set(trending_tickers) - set(previous_trending_list)
-        # if exit_trending != set():
-        #     message += "Tickers exiting trending: " + str(exit_trending) + "\n"
-        # if new_trending != set():
-        #     message += "Tickers entering trending: " + str(new_trending) + "\n"
+        
     
     for ticker in trending_tickers:
         message += ticker
@@ -100,7 +101,25 @@ async def get_trending_information():
     await channel.send(message)
     
     previous_trending_list = trending_tickers
-    
+
+@tasks.loop(minutes = 1)
+async def get_intraday_watchlist_info():
+    channel_id = discord_config["general_channel_id"]
+    channel = bot.get_channel(channel_id)
+    timestamp = utils.get_timestamp()
+    message = timestamp + "\n"
+    watchlist_tickers = robinhood_client.get_watchlist_tickers(constants.INTRADAY_WATCHLIST)
+
+    yfm = yfd.YahooFinanceModule(watchlist_tickers)
+    yfm.get_daily_history()
+
+    for ticker in watchlist_tickers:
+        daily_percentage_change = yfm.get_daily_percentage_change(ticker)
+        ticker_str = ticker + " -- " + daily_percentage_change + "% -- " + "\n"
+        message += ticker_str
+
+    await channel.send(message)
+
 
 
 if __name__ == '__main__':
@@ -111,6 +130,7 @@ if __name__ == '__main__':
     token = token_json["access_token"]
     keep_alive.keep_alive()
     bot.run(token)
+    robinhood_client.logout()
 
 
 

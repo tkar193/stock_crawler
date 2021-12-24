@@ -32,6 +32,11 @@ TICKERS_VOLUME_INDEX = 6
 PERSONAL_PHONE_NUMBER = "+17326090804"
 
 
+# Robinhood related constants
+
+INTRADAY_WATCHLIST = "Intraday watchlist"
+
+
 # Graph related constants
 
 SMALL_FONT_SIZE = 7

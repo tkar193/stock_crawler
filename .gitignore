@@ -5,5 +5,5 @@
 /common/*.pyc
 /common/__init__.py
 /servers/__pycache__/*
-testing.py
-testing2.py
+/miscellaneous/RobinhoodClient/*
+.env

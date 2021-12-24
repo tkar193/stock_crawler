@@ -3,8 +3,10 @@ import subprocess
 import sys
 import os
 import datetime
+import hashlib
 
 import pandas as pd
+
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(".")
@@ -14,14 +16,6 @@ import constants
 
 ### GENERAL COMMANDS
 
-
-def get_timestamp(get_whole_timestamp = False):
-    now = str(datetime.datetime.now())[:-3]
-    if not get_whole_timestamp:
-        now = now.split(".")[0]
-        now = now[:-3]
-        now = now.replace(" ", "T")
-    return now
 
 
 def load_config(application=None):
@@ -54,6 +48,34 @@ def execute_cmd(command):
 
 
 
+### DATETIME COMMANDS
+
+def get_timestamp(get_whole_timestamp = False):
+    now = str(datetime.datetime.now())[:-3]
+    if not get_whole_timestamp:
+        now = now.split(".")[0]
+        now = now[:-3]
+        now = now.replace(" ", "T")
+    return now
+
+
+def get_date_today():
+    date_today = datetime.date.today()
+    return date_today
+
+def get_date_yesterday():
+    date_yesterday = get_date_today() - datetime.timedelta(days=1)
+    return date_yesterday
+
+
+### SECURITY COMMANDS
+
+
+def get_sha256_hash():
+    pass
+
+
+
 ### DATA COMMANDS
 
 def import_ticker_symbol_data():
@@ -65,7 +87,6 @@ def import_ticker_symbol_data():
     ticker_list = tickers_pd["Symbol"].values.tolist()
 
     return ticker_list
-
 
 
 ### STRING COMMANDS
@@ -81,4 +102,17 @@ def list_to_comma_separated_string(ticker_list):
     return ticker_list_str
 
 
+### MATH COMMANDS
+
+def get_daily_percentage_change(previous_close, close):
+    daily_percentage_change = (float(close) - float(previous_close)) / float(previous_close)
+    daily_percentage_change = daily_percentage_change * 100
+    daily_percentage_change = str(round(daily_percentage_change, 2))
+    return daily_percentage_change
+
+
+
 # ticker_list = import_ticker_symbol_data()
+# t = get_date_today()
+# y = get_date_yesterday()
+# print(y)

@@ -45,14 +45,8 @@ def add_moving_averages(ticker_df):
 
 class YahooFinanceModule():
 
-    def __init__(self, ticker_list, period, interval, start, end = None):
+    def __init__(self, ticker_list):
         self.ticker_list = ticker_list
-        self.period = period
-        self.interval = interval
-        self.start = start
-        self.end = end
-
-
         self.ticker_list_str = utils.list_to_comma_separated_string(ticker_list)
         # self.ticker_data = yf.Tickers(self.ticker_list_str)
         # print(self.ticker_data.tickers.keys())
@@ -60,7 +54,7 @@ class YahooFinanceModule():
         self.ticker_df = None
 
 
-    def get_history(self, do_split = False):
+    def get_history(self, period, interval, start, end = None, do_split = False):
         
         # Split up all 7000+ tickers in 7 parts of 1000 tickers each
         
@@ -82,7 +76,7 @@ class YahooFinanceModule():
                 print(ticker_list_subset)
                 ticker_list_subset_str = utils.list_to_comma_separated_string(ticker_list_subset)
                 ticker_data_subset = yf.Tickers(ticker_list_subset_str)
-                ticker_df_subset = ticker_data_subset.history(period = self.period, interval = self.interval, start = self.start)
+                ticker_df_subset = ticker_data_subset.history(period = period, interval = interval, start = start)
                 ticker_dfs.append(ticker_df_subset)
 
                 i += constants.LENGTH_GET_HISTORY_WINDOW
@@ -94,23 +88,62 @@ class YahooFinanceModule():
                 else:
                     self.ticker_df = pd.concat([self.ticker_df, ticker_df_subset])
         else:
+            print("Ticker list string: " + self.ticker_list_str)
             self.ticker_data = yf.Tickers(self.ticker_list_str)
-            self.ticker_df = self.ticker_data.history(period = self.period, interval = self.interval, start = self.start)
+            self.ticker_df = self.ticker_data.history(period = period, interval = interval, start = start)
         
-        print("Got the history... now adding moving averages: " + utils.get_timestamp(get_whole_timestamp = True))
+        # print("Got the history... now adding moving averages: " + utils.get_timestamp(get_whole_timestamp = True))
         self.__add_moving_averages()
-        print("Just got the moving averages: " + utils.get_timestamp(get_whole_timestamp = True))
+        # print("Just got the moving averages: " + utils.get_timestamp(get_whole_timestamp = True))
+
+    def get_daily_history(self):
+        period = "1d"
+        interval = "1d"
+        # start = utils.get_date_today()
+        start = utils.get_date_yesterday()
+        start = "2021-07-01"
+        # print(start)
+
+        self.get_history(period, interval, start)
+
+    def get_daily_percentage_change(self, ticker):
+        try:
+            ticker_df = self.ticker_df.loc[:, (slice(None), ticker)]
+        except Exception as e:
+            print("Error trying to get daily percentage change: " + str(e))
+            return
+
+        # print(ticker_df)
+
+        opening_timestamp = ticker_df.iloc[0]
+        closing_timestamp = ticker_df.iloc[-1]
+
+        previous_close = opening_timestamp[("Close", ticker)]
+        today_close = closing_timestamp[("Close", ticker)]
+
+        daily_percentage_change = utils.get_daily_percentage_change(previous_close, today_close)
+
+        return daily_percentage_change
+
+    
+    def get_average_volume(self, ticker):
+        ticker_df = self.ticker_df.loc[:, (slice(None), ticker)]
+        print(ticker_df.columns)
+        pass
+
+
+    def detect_volume_spike(self):
+        pass
+
+
 
 
     def plot_ticker_chart(self, ticker):
-        
         try:
             ticker_df = self.ticker_df.loc[:, (slice(None), ticker)]
         except Exception as e:
             ticker_data = yf.Ticker(ticker)
             ticker_df = ticker_data.history(period=self.period, interval=self.interval, start = self.start)
-
-        # add_moving_averages(ticker_df)
 
         dates = ticker_df.index
         dates = list(dates)
@@ -149,13 +182,13 @@ class YahooFinanceModule():
         plt.bar(idx, hourly_volume, color="red")
         plt.plot(idx, vma)
         ax2.set_xticklabels(dates, rotation=90)
-        ax2.set_ylim(0, hourly_volume.max() * 8)
+        ax2.set_ylim(0, hourly_volume.max() * 4)
 
         plt.show()
 
 
 
-    def  __add_moving_averages(self):
+    def __add_moving_averages(self):
         SMAs = [constants.SHORT_SMA, constants.LONG_SMA]
         N = len(self.ticker_list)
 
@@ -184,31 +217,29 @@ def arg_parser():
     global args
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--ticker', nargs='?', type=str, default = None, ticker = None)
+    parser.add_argument('-t', '--ticker', nargs='?', type=str, default = None)
 
     args = parser.parse_args()
 
 
 if __name__ == '__main__':
-    # arg_parser()
-    # ticker = args.ticker
-
+    arg_parser()
+    ticker = args.ticker
     # ticker = "AAPL"
+    
     pd.set_option("display.max_rows", None, "display.max_columns", None)
 
     # tickers = utils.import_ticker_symbol_data()
-    tickers = ["AMC", "WISH", "STAF", "JOB", "MRIN"]
-    period = "1h"
-    interval = "1h"
-    start = "2021-6-01"
-    yfm = YahooFinanceModule(tickers, period, interval, start)
+
+    # Try to get daily percentage change
+    tickers = ["AAPL", "AGRI", "TSLA"]
+    yfm = YahooFinanceModule(tickers)
+    yfm.get_daily_history()
+    yfm.get_daily_percentage_change(ticker)
+    yfm.get_average_volume(ticker)
     
 
-    print("Now getting history: " + utils.get_timestamp(get_whole_timestamp = True))
-    yfm.get_history()
-    print("Got the history: " + utils.get_timestamp(get_whole_timestamp = True))
-
-    yfm.plot_ticker_chart("AMC")
+    # yfm.plot_ticker_chart(ticker)
     
 
     
