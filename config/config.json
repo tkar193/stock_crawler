@@ -1,40 +1,20 @@
 {
     "reddit": {
-        "client_id": "Ux-vJMxZ3nAXKg",
-        "client_secret": "K2UOHR9tx-UuiS9GnsbZBYm5RpweTg",
-        "username": "flare193",
-        "password": "Bomber123",
         "user_agent": "ticker_scraper"
     },
     "stocktwits": {
-        "consumer_key": "569624beb883d0f7",
-        "consumer_secret": "62bae64c9376ea6c6f1396ae13a1125e353b795d",
         "request_token_url": "https://api.stocktwits.com/api/2/oauth/token",
         "authorize_url": "https://api.stocktwits.com/api/2/oauth/authorize",
-        "code": "14cedf1c6236631ff655964972f5ec827c9b1429",
-        "user_id": 4486206,
-        "username": "tk193",
-        "access_token": "9f6883d35823dd5db1860e189b91c1bb4072dac5",
         "scope": "read,watch_lists,direct_messages,publish_messages,publish_watch_lists,follow_users"
-    }, 
-    "discord":
-    {
-        "token": "eyJhY2Nlc3NfdG9rZW4iOiAiT0RVNE9USXdPVGc1TXpjeE1EQTNNREEyLllObEtnUS5OMmJnTEZYMDBhTENna1pySW1tbzFqYTdPZ0EifQ==",
-        "general_channel_id": 858920579238723597
     },
-    "twilio": 
-    {
-        "account_sid": "AC3016543ef895b3b232ccde6b991bf2f0",
-        "auth_token": "eyAiYWNjZXNzX3Rva2VuIjogImE0MGIwZTBkZGVhY2U4NTczZGI3YzEwYzk1NzllMTVhIiB9",
-        "source_phone_number": "+17792045232",
-        "target_phone_numbers": [
-            "+17326090804",
-            "+18574159383"
-        ]
+    "discord_exporter_cli": {
+        "dll_file_directory": "DiscordChatExporter.Cli/DiscordChatExporter.Cli.dll",
+        "output_directory": "data/DiscordMessages/${discord_group_name}/${date_timestamp}/${timestamp}"
     },
     "data_directory": {
         "ticker_list": "data/entire_ticker_list.csv",
         "ticker_ignore": "data/ticker_ignore.csv",
-        "stocktwits_trending": "data/stocktwits_trending/${datetime}/trending.csv"
+        "stocktwits_trending": "data/stocktwits_trending/${datetime}/trending.csv",
+        "discord_ticker_mentions": "data/DiscordMessages/discord_ticker_mentions/${discord_group_name}/${date_timestamp}/${timestamp}"
     }
 }

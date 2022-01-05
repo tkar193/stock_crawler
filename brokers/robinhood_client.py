@@ -33,6 +33,8 @@ class RobinhoodClient():
             # print(ticker["symbol"])
             ticker_list.append(symbol)
             
+        print(str(len(ticker_list)))
+        
         return ticker_list
         
 

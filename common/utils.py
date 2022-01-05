@@ -19,7 +19,7 @@ import constants
 
 
 def load_config(application=None):
-    path_to_config = constants.LOCAL_ABSOLUTE_PROJECT_DIRECTORY_PREFIX + "/config/config.json"
+    path_to_config = "../config/config.json"
 
     with open(path_to_config, "r") as config_file:
         try:
@@ -46,7 +46,20 @@ def execute_cmd(command):
 
     return status, output
 
+def make_directory(output_directory):
+    try:
+        os.makedirs(output_directory)
+        # print("Output directory created at: " + output_directory)
+    except Exception as e:
+        print("Exception when trying to create output directory " + output_directory + ": " + str(e))
 
+
+def save_json(to_json, output_directory, filename):
+    make_directory(output_directory)
+    output_file_path = output_directory + "/" + filename
+    with open(output_file_path, "w") as outfile:
+        json.dump(to_json, outfile)
+    print("Saved json data to " + output_file_path)
 
 ### DATETIME COMMANDS
 
@@ -58,15 +71,30 @@ def get_timestamp(get_whole_timestamp = False):
         now = now.replace(" ", "T")
     return now
 
+def get_time():
+    now = str(datetime.datetime.now())[:-3]
+    now = now.split(".")[0]
+    now = now[:-3]
+    now = now.split(" ")[1]
+    return now
+
+def get_time_hours():
+    return get_time().split(":")[0]
 
 def get_date_today():
-    date_today = datetime.date.today()
+    date_today = str(datetime.date.today())
     return date_today
 
-def get_date_yesterday():
-    date_yesterday = get_date_today() - datetime.timedelta(days=1)
+def get_date_yesterday(num_days = 1):
+    date_yesterday = str(datetime.date.today() - datetime.timedelta(days = num_days))
     return date_yesterday
 
+def get_date_minutes_before(num_minutes = 5):
+    time_before = str(datetime.datetime.now() - datetime.timedelta(minutes = num_minutes))
+    time_before = time_before.split(".")[0]
+    time_before = time_before[:-3]
+    time_before = time_before.split(" ")[1]
+    return time_before
 
 ### SECURITY COMMANDS
 
@@ -114,5 +142,10 @@ def get_daily_percentage_change(previous_close, close):
 
 # ticker_list = import_ticker_symbol_data()
 # t = get_date_today()
+# print(t)
 # y = get_date_yesterday()
 # print(y)
+# t = get_time()
+# print(t)
+# t = get_date_minutes_before()
+# print(t)

@@ -57,9 +57,7 @@ def send_sms(message, target_phone_number = constants.PERSONAL_PHONE_NUMBER):
 
 
 if __name__ == '__main__':
-
     initialize_twilio_client()
-
     send_sms(message1)
     send_sms(message2, target_phone_number = "+18574159383")
 
