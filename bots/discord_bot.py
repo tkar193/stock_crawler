@@ -119,7 +119,7 @@ async def get_discord_channel_ticker_mentions():
         
 
         timestamp = utils.get_timestamp()
-        message = "--------" + timestamp + "--------\n"
+        message = ""
         new_mentions = []
 
         for ticker in ticker_count_map:
@@ -127,12 +127,13 @@ async def get_discord_channel_ticker_mentions():
             if not got_new_mentions_for_start_of_day and ticker_count < 3:
                 continue
             
-            if got_new_mentions_for_start_of_day:
-                if ticker not in total_ticker_count_map:
-                    new_mentions.append((ticker, ticker_count))
-                else:
-                    total_count = ticker_count + total_ticker_count_map[ticker]
-                    message += ticker + "+" + str(ticker_count) + " => " + str(total_count)  + "\n"
+        
+            if ticker not in total_ticker_count_map:
+                new_mentions.append((ticker, ticker_count))
+                # print("Added " + ticker)
+            else:
+                total_count = ticker_count + total_ticker_count_map[ticker]
+                message += ticker + "+" + str(ticker_count) + " => " + str(total_count)  + "\n"
 
             if ticker not in total_ticker_count_map:
                 total_ticker_count_map[ticker] = ticker_count
@@ -151,9 +152,11 @@ async def get_discord_channel_ticker_mentions():
                 if new_mention[1] > 1:
                     addend += " (" + str(ticker_count) + ")"
                 addend += ", "
+                new_mention_str += addend
 
-            message = new_mention_str + message
+            message = new_mention_str + message + "\n"
 
+        message = "--------" + timestamp + "--------\n" + message
         message += "--------------------"
 
         print(message)
