@@ -11,18 +11,22 @@ from decouple import config as cfg
 import stocktwits_bot
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append("..")
-from common import utils, constants, ticker_utils
+from common import utils, ticker_utils
+from common.constants import *
 from servers import keep_alive
 from brokers import robinhood_client
+from finance import finnhub_data as fb
 import yahoo_finance_data as yfd
+
 
 
 bot = commands.Bot(command_prefix = "!")
 config = utils.load_config()
 # st_bot = stocktwits_bot.StocktwitsBot()
 # robinhood_client = robinhood_client.RobinhoodClient()
+finnhub_client = fb.FinhubClient()
 # previous_trending_list = None
-discord_group = constants.ATLAS_TRADING
+discord_group = ATLAS_TRADING
 
 got_new_mentions_for_start_of_day = False
 total_ticker_count_map = {}
@@ -34,10 +38,35 @@ async def on_ready():
     # get_trending_information.start()
     get_discord_channel_ticker_mentions.start()
     # get_intraday_watchlist_info.start()
+    # get_stochastic.start()
     
 
+@bot.command(name = "trending")
+async def on_message_get_top_trending_discord_mentions(message):
+    global total_ticker_count_map
+
+    channel_id = discord_config["channels"][PERSONAL_SERVER]["channel_id"]
+    channel = bot.get_channel(channel_id)
+
+    total_ticker_count_map = {k: v for k, v in sorted(total_ticker_count_map.items(), key=lambda item: item[1])}
+    
+    trending_ticker_list = list(total_ticker_count_map.keys())
+    # print(trending_ticker_list)
+
+    try:
+        send_message = "Trending Discord ticker mentions:\n"
+        for i in range(MAX_TRENDING_DISCORD_TICKER_MENTIONS):
+            ticker = trending_ticker_list[-(i+1)]
+            ticker_count = total_ticker_count_map[ticker]
+            send_message += ticker + ": " + str(ticker_count) + "\n"
+    except Exception as e:
+        print("Ran into exception getting top trending Discord ticker mentions: " + str(e))
+        send_message = "Could not get top trending Discord ticker mentions. Perhaps it's non-market hours?"
+
+    await channel.send(send_message)
+
+
 @tasks.loop(minutes = 15)
-# @tasks.loop(seconds = 10)
 async def get_trending_information():
     global previous_trending_list
 
@@ -73,13 +102,13 @@ async def get_trending_information():
     previous_trending_list = trending_tickers
 
 
-@tasks.loop(minutes = 1)
+@tasks.loop(minutes = 15)
 async def get_intraday_watchlist_info():
     channel_id = discord_config["general_channel_id"]
     channel = bot.get_channel(channel_id)
     timestamp = utils.get_timestamp()
     message = timestamp + "\n"
-    watchlist_tickers = robinhood_client.get_watchlist_tickers(constants.INTRADAY_WATCHLIST)
+    watchlist_tickers = robinhood_client.get_watchlist_tickers(INTRADAY_WATCHLIST)
 
     yfm = yfd.YahooFinanceModule(watchlist_tickers)
     yfm.get_daily_history()
@@ -97,24 +126,25 @@ async def get_discord_channel_ticker_mentions():
     global got_new_mentions_for_start_of_day
     global total_ticker_count_map
 
-    channel_id = discord_config["channels"][constants.PERSONAL_SERVER]["channel_id"]
+    channel_id = discord_config["channels"][PERSONAL_SERVER]["channel_id"]
     channel = bot.get_channel(channel_id)
     time_now_hours = utils.get_time_hours()
     time_now_hours = int(time_now_hours)
     message = ""
 
-    if time_now_hours >= 9 and time_now_hours <= 21:
+
+    if time_now_hours >= 9 and time_now_hours < 20:
         timestamp = utils.get_timestamp()
         print("Market hours, currently: " + timestamp)
         if not got_new_mentions_for_start_of_day:
             print("Start of day: getting mentions since pre-market open!")
-            start_time = constants.PREMARKET_START
+            start_time = PREMARKET_START
         else:
             start_time = utils.get_date_minutes_before()
 
         end_time = utils.get_time()
-        print("Start time: " + str(start_time))
-        print("End time: " + str(end_time))
+        # print("Start time: " + str(start_time))
+        # print("End time: " + str(end_time))
         ticker_count_map = get_ticker_mentions(discord_group, start_time, end_time)
         
 
@@ -154,7 +184,7 @@ async def get_discord_channel_ticker_mentions():
                 addend += ", "
                 new_mention_str += addend
 
-            message = new_mention_str + message + "\n"
+            message = new_mention_str + "\n" + message
 
         message = "--------" + timestamp + "--------\n" + message
         message += "--------------------"
@@ -166,7 +196,7 @@ async def get_discord_channel_ticker_mentions():
 
         await channel.send(message)
 
-    elif time_now_hours >= 20:
+    elif time_now_hours >= 20 or time_now_hours < 4:
         got_new_mentions_for_start_of_day = False
         total_ticker_count_map.clear()
         print("Past market hours, nothing to send")
@@ -176,7 +206,9 @@ def get_ticker_mentions(discord_group, start_time, end_time):
     discord_chat_exporter_dll_file_path = "../../" + config["discord_exporter_cli"]["dll_file_directory"]
     discord_token = discord_config["channels"][discord_group]["cli_token"]
     discord_channel_id = discord_config["channels"][discord_group]["channel_id"]
+
     date_today = utils.get_date_today()
+
     after_time = date_today + " " + start_time
     end_time = utils.get_time()
     before_time = date_today + " " + end_time
@@ -223,23 +255,34 @@ def get_ticker_mentions(discord_group, start_time, end_time):
     return ticker_count_map
 
 
+@tasks.loop(minutes = 1)
+async def get_stochastic():
+    global robinhood_client
+    global finnhub_client
 
+    tickers = robinhood_client.get_watchlist_tickers("Uptrending")
+    
+    from_date = utils.get_time_unix_from_date(utils.get_market_start_time())
+    # to_date = utils.get_time_unix_from_date(utils.get_timestamp())
+    to_date = utils.get_time_unix_from_date("2022-01-20T16:00")
 
+    tickers = ["QQQ"]
 
-
-
-
+    for ticker in tickers:
+        # print("Getting stochastic of " + ticker)
+        stochastic = finnhub_client.get_technical_indicator(ticker, from_date, to_date)
+        print("Stochastic of " + ticker + " is " + str(stochastic))
+    
+    
 
 
 if __name__ == '__main__':
-    discord_config = base64.b64decode(cfg(constants.DISCORD_SECRET_KEYNAME))
+    discord_config = base64.b64decode(cfg(DISCORD_SECRET_KEYNAME))
     discord_config = json.loads(discord_config)["discord_secrets"]
-    encoded_token = discord_config["channels"][constants.PERSONAL_SERVER]["oauth_token"]
+    encoded_token = discord_config["channels"][PERSONAL_SERVER]["oauth_token"]
     decoded_token = base64.b64decode(encoded_token)
     token_json = json.loads(decoded_token)
     token = token_json["access_token"]
-    keep_alive.keep_alive()
-    got_new_mentions_for_start_of_day = False
     bot.run(token)
     robinhood_client.logout()
 

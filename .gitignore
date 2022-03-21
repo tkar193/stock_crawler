@@ -4,6 +4,10 @@
 /common/__pycache__/*
 /common/*.pyc
 /common/__init__.py
+/data/DiscordMessages
 /servers/__pycache__/*
-/miscellaneous/RobinhoodClient/*
+/brokers/__pycache__/*
+/keys/*
+/install/install.sh
+/miscellaneous/*
 .env

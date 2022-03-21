@@ -48,10 +48,12 @@ TODAY_INTRADAY_WATCHLIST = "Today intraday watchlist"
 HIGH_SWING_ALERT = "High swing alert"
 
 
-# Discord Groups
+# Discord related constants
+
 PERSONAL_SERVER = "TKStonks"
 ATLAS_TRADING = "AtlasTrading"
 
+MAX_TRENDING_DISCORD_TICKER_MENTIONS = 10
 
 # Market Times
 
